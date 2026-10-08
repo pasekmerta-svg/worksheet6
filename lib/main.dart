@@ -69,14 +69,10 @@ class CourseExplorerPage extends StatefulWidget {
 class _CourseExplorerPageState extends State<CourseExplorerPage> {
   int _selectedIndex = 0;
 
-  final List<Map<String, String>> _courses = [
-    {'id': '1', 'title': 'Git & GitHub', 'status': 'done'},
-    {'id': '2', 'title': 'Dart Fundamentals', 'status': 'done'},
-    {'id': '3', 'title': 'State Management', 'status': 'active'},
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final courses = context.watch<CourseProvider>().courses;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4F8),
       appBar: AppBar(
@@ -122,7 +118,7 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                       children: [
                         const Text('Courses', style: TextStyle(color: Colors.black54, fontSize: 12)),
                         const SizedBox(height: 2),
-                        Text('${_courses.length}',
+                        Text('${courses.length}',
                             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1565C0))),
                       ],
                     ),
@@ -142,7 +138,6 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                       children: [
                         const Text('Favorites', style: TextStyle(color: Colors.black54, fontSize: 12)),
                         const SizedBox(height: 2),
-                        // 30. Menggunakan watch() untuk menampilkan jumlah favorite
                         Builder(
                           builder: (context) {
                             final favoriteCount = context.watch<CourseProvider>().favoriteCount;
@@ -160,12 +155,12 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
             ),
             const SizedBox(height: 12),
 
-            // Daftar Course
+            // Daftar Course dari Model Object
             Expanded(
               child: ListView.builder(
-                itemCount: _courses.length,
+                itemCount: courses.length,
                 itemBuilder: (context, index) {
-                  final item = _courses[index];
+                  final course = courses[index];
                   return Container(
                     margin: const EdgeInsets.only(bottom: 10),
                     padding: const EdgeInsets.all(14),
@@ -187,23 +182,24 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(item['title']!,
-                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF1565C0))),
+                            Text(
+                              '${course.code} - ${course.title}',
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
+                            ),
                             const SizedBox(height: 4),
                             Text(
-                              item['status']!,
+                              '${course.status} • ${course.credits} SKS',
                               style: TextStyle(
-                                color: item['status'] == 'done' ? Colors.green.shade700 : Colors.teal,
+                                color: course.status == 'done' ? Colors.green.shade700 : Colors.teal,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
                               ),
                             ),
                           ],
                         ),
-                        // 32. Menggunakan Consumer pada bagian kecil UI
                         Consumer<CourseProvider>(
                           builder: (context, provider, child) {
-                            final isFav = provider.isFavorite(item['id']!);
+                            final isFav = provider.isFavorite(course.code);
                             return IconButton(
                               constraints: const BoxConstraints(),
                               padding: EdgeInsets.zero,
@@ -213,8 +209,7 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                                 size: 20,
                               ),
                               onPressed: () {
-                                // 31. Menggunakan read() pada tombol toggle favorite
-                                context.read<CourseProvider>().toggleFavorite(item['id']!);
+                                context.read<CourseProvider>().toggleFavorite(course.code);
                               },
                             );
                           },
