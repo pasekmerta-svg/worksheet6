@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
-import 'course_state.dart';
+import 'package:provider/provider.dart';
+import 'course_provider.dart';
 
 const String studentName = 'Made Pasek Merta Sujati';
 const String studentId = '2415051096';
 
 void main() {
-  runApp(const MyApp());
+  // 28. Bungkus aplikasi dengan ChangeNotifierProvider
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => CourseProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -62,7 +69,6 @@ class CourseExplorerPage extends StatefulWidget {
 
 class _CourseExplorerPageState extends State<CourseExplorerPage> {
   int _selectedIndex = 0;
-  final CourseState courseState = CourseState();
 
   final List<Map<String, String>> _courses = [
     {'id': '1', 'title': 'Git & GitHub', 'status': 'done'},
@@ -71,22 +77,10 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    // Mendengarkan perubahan pada courseState
-    courseState.addListener(() {
-      setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    courseState.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // Mengakses Provider menggunakan Provider.of
+    final courseProvider = Provider.of<CourseProvider>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4F8),
       appBar: AppBar(
@@ -153,7 +147,7 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                         const Text('Favorites', style: TextStyle(color: Colors.black54, fontSize: 12)),
                         const SizedBox(height: 2),
                         Text(
-                          '${courseState.favoriteCount}',
+                          '${courseProvider.favoriteCount}',
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
                         ),
                       ],
@@ -170,7 +164,7 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                 itemCount: _courses.length,
                 itemBuilder: (context, index) {
                   final item = _courses[index];
-                  final bool isFav = courseState.isFavorite(item['id']!);
+                  final bool isFav = courseProvider.isFavorite(item['id']!);
                   return Container(
                     margin: const EdgeInsets.only(bottom: 10),
                     padding: const EdgeInsets.all(14),
@@ -214,7 +208,7 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                             size: 20,
                           ),
                           onPressed: () {
-                            courseState.toggleFavorite(item['id']!);
+                            courseProvider.toggleFavorite(item['id']!);
                           },
                         ),
                       ],
