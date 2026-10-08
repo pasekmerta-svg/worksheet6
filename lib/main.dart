@@ -6,7 +6,6 @@ const String studentName = 'Made Pasek Merta Sujati';
 const String studentId = '2415051096';
 
 void main() {
-  // 28. Bungkus aplikasi dengan ChangeNotifierProvider
   runApp(
     ChangeNotifierProvider(
       create: (_) => CourseProvider(),
@@ -78,9 +77,6 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Mengakses Provider menggunakan Provider.of
-    final courseProvider = Provider.of<CourseProvider>(context);
-
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4F8),
       appBar: AppBar(
@@ -146,9 +142,15 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                       children: [
                         const Text('Favorites', style: TextStyle(color: Colors.black54, fontSize: 12)),
                         const SizedBox(height: 2),
-                        Text(
-                          '${courseProvider.favoriteCount}',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
+                        // 30. Menggunakan watch() untuk menampilkan jumlah favorite
+                        Builder(
+                          builder: (context) {
+                            final favoriteCount = context.watch<CourseProvider>().favoriteCount;
+                            return Text(
+                              '$favoriteCount',
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -164,7 +166,6 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                 itemCount: _courses.length,
                 itemBuilder: (context, index) {
                   final item = _courses[index];
-                  final bool isFav = courseProvider.isFavorite(item['id']!);
                   return Container(
                     margin: const EdgeInsets.only(bottom: 10),
                     padding: const EdgeInsets.all(14),
@@ -199,16 +200,23 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                             ),
                           ],
                         ),
-                        IconButton(
-                          constraints: const BoxConstraints(),
-                          padding: EdgeInsets.zero,
-                          icon: Icon(
-                            isFav ? Icons.favorite : Icons.favorite_border,
-                            color: isFav ? Colors.red : Colors.grey,
-                            size: 20,
-                          ),
-                          onPressed: () {
-                            courseProvider.toggleFavorite(item['id']!);
+                        // 32. Menggunakan Consumer pada bagian kecil UI
+                        Consumer<CourseProvider>(
+                          builder: (context, provider, child) {
+                            final isFav = provider.isFavorite(item['id']!);
+                            return IconButton(
+                              constraints: const BoxConstraints(),
+                              padding: EdgeInsets.zero,
+                              icon: Icon(
+                                isFav ? Icons.favorite : Icons.favorite_border,
+                                color: isFav ? Colors.red : Colors.grey,
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                // 31. Menggunakan read() pada tombol toggle favorite
+                                context.read<CourseProvider>().toggleFavorite(item['id']!);
+                              },
+                            );
                           },
                         ),
                       ],
