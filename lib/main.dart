@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Identitas Mahasiswa
 const String studentName = 'Made Pasek Merta Sujati';
 const String studentId = '2415051096';
 
@@ -7,6 +8,7 @@ void main() {
   runApp(const MyApp());
 }
 
+// 1. Ancestor terdekat (Parent) memegang state tunggal (Single Source of Truth)
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -15,9 +17,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // Parent menyimpan state favorites (State Ownership)
+  // State tunggal disimpan di sini
   final List<String> _favoriteCourses = [];
 
+  // Callback untuk mengubah state di Parent
   void _toggleFavorite(String courseTitle) {
     setState(() {
       if (_favoriteCourses.contains(courseTitle)) {
@@ -35,20 +38,20 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         appBar: AppBar(
           title: Text('$studentId - $studentName'),
-          backgroundColor: Colors.indigo,
+          backgroundColor: Colors.teal,
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Prop Drilling: Mengoper data & callback ke Child 1
-              CourseList(
+              // Mengirim data & callback ke Child 1
+              CourseListSection(
                 favorites: _favoriteCourses,
                 onToggleFavorite: _toggleFavorite,
               ),
               const Divider(height: 32, thickness: 2),
-              // Prop Drilling: Mengoper data ke Child 2
-              CourseSummary(favoritesCount: _favoriteCourses.length),
+              // Mengirim data ke Child 2 (menjamin tampilan konsisten)
+              CourseSummarySection(favoritesCount: _favoriteCourses.length),
             ],
           ),
         ),
@@ -57,11 +60,12 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class CourseList extends StatelessWidget {
+// Child Widget 1: Hanya menerima data dan memicu callback
+class CourseListSection extends StatelessWidget {
   final List<String> favorites;
   final Function(String) onToggleFavorite;
 
-  const CourseList({
+  const CourseListSection({
     super.key,
     required this.favorites,
     required this.onToggleFavorite,
@@ -69,25 +73,33 @@ class CourseList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final courses = ['Flutter Basics', 'State Management', 'Dart Advanced'];
+    final courses = [
+      'Pemrograman Mobile',
+      'Arsitektur Software',
+      'Desain Antarmuka'
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Daftar Kursus:',
+          'Daftar Kursus (Lifting State Up):',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
+        const SizedBox(height: 8),
         ...courses.map((course) {
           final isFav = favorites.contains(course);
-          return ListTile(
-            title: Text(course),
-            trailing: IconButton(
-              icon: Icon(
-                isFav ? Icons.favorite : Icons.favorite_border,
-                color: isFav ? Colors.red : Colors.grey,
+          return Card(
+            elevation: 2,
+            child: ListTile(
+              title: Text(course),
+              trailing: IconButton(
+                icon: Icon(
+                  isFav ? Icons.favorite : Icons.favorite_border,
+                  color: isFav ? Colors.red : Colors.grey,
+                ),
+                onPressed: () => onToggleFavorite(course),
               ),
-              onPressed: () => onToggleFavorite(course),
             ),
           );
         }),
@@ -96,33 +108,39 @@ class CourseList extends StatelessWidget {
   }
 }
 
-class CourseSummary extends StatelessWidget {
+// Child Widget 2: Menerima data terhitung dari Parent
+class CourseSummarySection extends StatelessWidget {
   final int favoritesCount;
 
-  const CourseSummary({super.key, required this.favoritesCount});
+  const CourseSummarySection({super.key, required this.favoritesCount});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.indigo.shade50,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Total Favorit Ditandai:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-            Chip(
-              label: Text(
-                '$favoritesCount Kursus',
-                style: const TextStyle(color: Colors.white),
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.teal.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.teal.shade200),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            'Total Kursus Difavoritkan:',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
+          Chip(
+            label: Text(
+              '$favoritesCount Kursus',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
-              backgroundColor: Colors.indigo,
             ),
-          ],
-        ),
+            backgroundColor: Colors.teal,
+          ),
+        ],
       ),
     );
   }
