@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'course_state.dart';
 
 const String studentName = 'Made Pasek Merta Sujati';
 const String studentId = '2415051096';
@@ -19,7 +20,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Wrapper agar tampilan web Chrome terpusat seperti layar HP
 class MobileFrameWrapper extends StatelessWidget {
   const MobileFrameWrapper({super.key});
 
@@ -29,8 +29,8 @@ class MobileFrameWrapper extends StatelessWidget {
       backgroundColor: const Color(0xFFCFD8DC),
       body: Center(
         child: Container(
-          width: 380, // Lebar standar layar HP
-          height: 750, // Tinggi standar layar HP
+          width: 380,
+          height: 750,
           decoration: BoxDecoration(
             color: const Color(0xFFF0F4F8),
             borderRadius: BorderRadius.circular(32),
@@ -62,27 +62,26 @@ class CourseExplorerPage extends StatefulWidget {
 
 class _CourseExplorerPageState extends State<CourseExplorerPage> {
   int _selectedIndex = 0;
+  final CourseState courseState = CourseState();
 
-  // ValueNotifier untuk memantau jumlah favorite
-  final ValueNotifier<int> favoriteCountNotifier = ValueNotifier<int>(0);
-
-  final List<Map<String, dynamic>> _courses = [
-    {'title': 'Git & GitHub', 'status': 'done', 'isFav': false},
-    {'title': 'Dart Fundamentals', 'status': 'done', 'isFav': false},
-    {'title': 'State Management', 'status': 'active', 'isFav': false},
+  final List<Map<String, String>> _courses = [
+    {'id': '1', 'title': 'Git & GitHub', 'status': 'done'},
+    {'id': '2', 'title': 'Dart Fundamentals', 'status': 'done'},
+    {'id': '3', 'title': 'State Management', 'status': 'active'},
   ];
 
-  void _toggleFavorite(int index) {
-    setState(() {
-      _courses[index]['isFav'] = !_courses[index]['isFav'];
-      int totalFav = _courses.where((c) => c['isFav'] == true).length;
-      favoriteCountNotifier.value = totalFav;
+  @override
+  void initState() {
+    super.initState();
+    // Mendengarkan perubahan pada courseState
+    courseState.addListener(() {
+      setState(() {});
     });
   }
 
   @override
   void dispose() {
-    favoriteCountNotifier.dispose();
+    courseState.dispose();
     super.dispose();
   }
 
@@ -101,7 +100,7 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Card Identitas
+            // Identitas Mahasiswa
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -117,7 +116,7 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
             ),
             const SizedBox(height: 12),
 
-            // Ringkasan Courses & Favorites
+            // Ringkasan
             Row(
               children: [
                 Expanded(
@@ -153,14 +152,9 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                       children: [
                         const Text('Favorites', style: TextStyle(color: Colors.black54, fontSize: 12)),
                         const SizedBox(height: 2),
-                        ValueListenableBuilder<int>(
-                          valueListenable: favoriteCountNotifier,
-                          builder: (context, value, child) {
-                            return Text(
-                              '$value',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
-                            );
-                          },
+                        Text(
+                          '${courseState.favoriteCount}',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
                         ),
                       ],
                     ),
@@ -176,7 +170,7 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                 itemCount: _courses.length,
                 itemBuilder: (context, index) {
                   final item = _courses[index];
-                  final bool isFav = item['isFav'];
+                  final bool isFav = courseState.isFavorite(item['id']!);
                   return Container(
                     margin: const EdgeInsets.only(bottom: 10),
                     padding: const EdgeInsets.all(14),
@@ -219,7 +213,9 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                             color: isFav ? Colors.red : Colors.grey,
                             size: 20,
                           ),
-                          onPressed: () => _toggleFavorite(index),
+                          onPressed: () {
+                            courseState.toggleFavorite(item['id']!);
+                          },
                         ),
                       ],
                     ),
