@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'course_provider.dart';
+import 'repositories/course_repository.dart';
+import 'services/course_service.dart';
 
 const String studentName = 'Made Pasek Merta Sujati';
 const String studentId = '2415051096';
@@ -8,7 +10,9 @@ const String studentId = '2415051096';
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (_) => CourseProvider(),
+      create: (_) => CourseProvider(
+        CourseRepository(CourseService()),
+      ),
       child: const MyApp(),
     ),
   );
@@ -71,7 +75,7 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final courses = context.watch<CourseProvider>().courses;
+    final provider = context.watch<CourseProvider>();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4F8),
@@ -118,7 +122,7 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                       children: [
                         const Text('Courses', style: TextStyle(color: Colors.black54, fontSize: 12)),
                         const SizedBox(height: 2),
-                        Text('${courses.length}',
+                        Text('${provider.courses.length}',
                             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1565C0))),
                       ],
                     ),
@@ -138,14 +142,9 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                       children: [
                         const Text('Favorites', style: TextStyle(color: Colors.black54, fontSize: 12)),
                         const SizedBox(height: 2),
-                        Builder(
-                          builder: (context) {
-                            final favoriteCount = context.watch<CourseProvider>().favoriteCount;
-                            return Text(
-                              '$favoriteCount',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
-                            );
-                          },
+                        Text(
+                          '${provider.favoriteCount}',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
                         ),
                       ],
                     ),
@@ -155,67 +154,98 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
             ),
             const SizedBox(height: 12),
 
-            // Daftar Course dari Model Object
+            // Penanganan 3 Async State pada UI
             Expanded(
-              child: ListView.builder(
-                itemCount: courses.length,
-                itemBuilder: (context, index) {
-                  final course = courses[index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.blue.shade50),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.02),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${course.code} - ${course.title}',
-                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${course.status} • ${course.credits} SKS',
-                              style: TextStyle(
-                                color: course.status == 'done' ? Colors.green.shade700 : Colors.teal,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
+              child: Builder(
+                builder: (context) {
+                  // 48. Tampilkan CircularProgressIndicator saat loading
+                  if (provider.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  // 49. Tampilkan pesan jika error tidak null
+                  if (provider.error != null) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                          const SizedBox(height: 8),
+                          Text('Terjadi Kesalahan:\n${provider.error}',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: Colors.red)),
+                          const SizedBox(height: 12),
+                          ElevatedButton(
+                            onPressed: () => provider.loadCourses(),
+                            child: const Text('Coba Lagi'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  // 50. Tampilkan list jika data berhasil dimuat
+                  return ListView.builder(
+                    itemCount: provider.courses.length,
+                    itemBuilder: (context, index) {
+                      final course = provider.courses[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.blue.shade50),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.02),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
-                        Consumer<CourseProvider>(
-                          builder: (context, provider, child) {
-                            final isFav = provider.isFavorite(course.code);
-                            return IconButton(
-                              constraints: const BoxConstraints(),
-                              padding: EdgeInsets.zero,
-                              icon: Icon(
-                                isFav ? Icons.favorite : Icons.favorite_border,
-                                color: isFav ? Colors.red : Colors.grey,
-                                size: 20,
-                              ),
-                              onPressed: () {
-                                context.read<CourseProvider>().toggleFavorite(course.code);
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${course.code} - ${course.title}',
+                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${course.status} • ${course.credits} SKS',
+                                  style: TextStyle(
+                                    color: course.status == 'done' ? Colors.green.shade700 : Colors.teal,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Consumer<CourseProvider>(
+                              builder: (context, favProvider, child) {
+                                final isFav = favProvider.isFavorite(course.code);
+                                return IconButton(
+                                  constraints: const BoxConstraints(),
+                                  padding: EdgeInsets.zero,
+                                  icon: Icon(
+                                    isFav ? Icons.favorite : Icons.favorite_border,
+                                    color: isFav ? Colors.red : Colors.grey,
+                                    size: 20,
+                                  ),
+                                  onPressed: () {
+                                    favProvider.toggleFavorite(course.code);
+                                  },
+                                );
                               },
-                            );
-                          },
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   );
                 },
               ),
