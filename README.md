@@ -1,17 +1,18 @@
-# worksheet_6
+# Worksheet 6 - Course Explorer v2
 
-A new Flutter project.
+**Nama**: Made Pasek Merta Sujati  
+**NIM**: 2415051096  
 
-## Getting Started
+## Arsitektur Aplikasi & Tanggung Jawab Folder
 
-This project is a starting point for a Flutter application.
+Aplikasi ini menerapkan alur ketergantungan (*dependency direction*) satu arah:  
+`Screen / Widget` -> `Provider` -> `Repository` -> `Service / Data Source`
 
-A few resources to get you started if this is your first Flutter project:
+Berikut adalah tanggung jawab masing-masing direktori di dalam folder `lib/`:
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* **`models/`**: Mendefinisikan class data (`course.dart`) dan proses parsing JSON.
+* **`services/`**: Menangani pembacaan data mentah dari data source (`rootBundle` / file JSON `student_data.json`).
+* **`repositories/`**: Mengelola logika bisnis dan pengolahan data yang didapat dari layer Service.
+* **`providers/`**: Mengelola state aplikasi (aplikasi state & favorit) dan memberitahu UI saat terjadi perubahan data (`notifyListeners`).
+* **`screens/`**: Menampilkan antarmuka halaman utama, detail, dan favorit.
+* **`widgets/`**: Menyimpan komponen UI modular yang dapat digunakan kembali (*reusable widgets*).
