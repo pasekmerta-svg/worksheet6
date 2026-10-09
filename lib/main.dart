@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'course_provider.dart';
+
+import 'providers/course_provider.dart';
 import 'repositories/course_repository.dart';
 import 'services/course_service.dart';
 
@@ -74,14 +75,25 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
   int _selectedIndex = 0;
 
   @override
+  void initState() {
+    super.initState();
+    // Memuat data course saat halaman dibuka pertama kali
+    Future.microtask(
+      () => context.read<CourseProvider>().loadCourses(),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final provider = context.watch<CourseProvider>();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4F8),
       appBar: AppBar(
-        title: const Text('Course Explorer v2',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+        title: const Text(
+          'Course Explorer v2',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         backgroundColor: const Color(0xFF1976D2),
         centerTitle: true,
         elevation: 0,
@@ -98,10 +110,14 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                 color: const Color(0xFFE8F1F5),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Text(
-                '$studentId • $studentName',
+              child: const Text(
+                '$studentId - $studentName',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1565C0),
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -122,8 +138,14 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                       children: [
                         const Text('Courses', style: TextStyle(color: Colors.black54, fontSize: 12)),
                         const SizedBox(height: 2),
-                        Text('${provider.courses.length}',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1565C0))),
+                        Text(
+                          '${provider.courses.length}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1565C0),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -144,7 +166,11 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                         const SizedBox(height: 2),
                         Text(
                           '${provider.favoriteCount}',
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1565C0),
+                          ),
                         ),
                       ],
                     ),
@@ -158,12 +184,10 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
             Expanded(
               child: Builder(
                 builder: (context) {
-                  // 48. Tampilkan CircularProgressIndicator saat loading
                   if (provider.isLoading) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  // 49. Tampilkan pesan jika error tidak null
                   if (provider.error != null) {
                     return Center(
                       child: Column(
@@ -171,9 +195,11 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                         children: [
                           const Icon(Icons.error_outline, color: Colors.red, size: 48),
                           const SizedBox(height: 8),
-                          Text('Terjadi Kesalahan:\n${provider.error}',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.red)),
+                          Text(
+                            'Terjadi Kesalahan:\n${provider.error}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.red),
+                          ),
                           const SizedBox(height: 12),
                           ElevatedButton(
                             onPressed: () => provider.loadCourses(),
@@ -184,7 +210,6 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                     );
                   }
 
-                  // 50. Tampilkan list jika data berhasil dimuat
                   return ListView.builder(
                     itemCount: provider.courses.length,
                     itemBuilder: (context, index) {
@@ -212,13 +237,19 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                               children: [
                                 Text(
                                   '${course.code} - ${course.title}',
-                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1565C0)),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1565C0),
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   '${course.status} • ${course.credits} SKS',
                                   style: TextStyle(
-                                    color: course.status == 'done' ? Colors.green.shade700 : Colors.teal,
+                                    color: course.status == 'done'
+                                        ? Colors.green.shade700
+                                        : Colors.teal,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12,
                                   ),
