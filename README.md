@@ -16,3 +16,15 @@ Berikut adalah tanggung jawab masing-masing direktori di dalam folder `lib/`:
 * **`providers/`**: Mengelola state aplikasi (aplikasi state & favorit) dan memberitahu UI saat terjadi perubahan data (`notifyListeners`).
 * **`screens/`**: Menampilkan antarmuka halaman utama, detail, dan favorit.
 * **`widgets/`**: Menyimpan komponen UI modular yang dapat digunakan kembali (*reusable widgets*).
+
+## Documentation Endpoint API (Tahap 1)
+
+- Endpoint: https://jsonplaceholder.typicode.com/posts/1
+- HTTP Method: GET
+- Status Code: 200 OK
+- JSON Structure:
+  - id (int)
+  - code / userId (string/int)
+  - title (string)
+  - credits / body (string/int)
+  - status (string)
