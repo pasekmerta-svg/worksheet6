@@ -1,25 +1,33 @@
-// 34. File lib/models/course.dart
 class Course {
-  // 35. Field minimal code, title, credits, status
+  final int? id;
   final String code;
   final String title;
   final int credits;
   final String status;
 
-  Course({
+  const Course({
+    this.id,
     required this.code,
     required this.title,
     required this.credits,
-    required this.status,
+    this.status = 'planned',
   });
 
-  // 36. Factory Course.fromJson()
   factory Course.fromJson(Map<String, dynamic> json) {
     return Course(
-      code: json['code'] as String,
+      id: json['id'] as int?,
+      code: (json['code'] ?? json['userId']?.toString() ?? '') as String,
       title: json['title'] as String,
-      credits: json['credits'] as int,
-      status: json['status'] as String,
+      credits: (json['credits'] ?? 2) as int,
+      status: (json['status'] as String?) ?? 'planned',
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        'code': code,
+        'title': title,
+        'credits': credits,
+        'status': status,
+      };
 }
