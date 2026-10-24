@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/course_provider.dart';
-import 'repositories/course_repository.dart';
-import 'services/course_service.dart';
+import 'services/course_api_service.dart';
 
 const String studentName = 'Made Pasek Merta Sujati';
 const String studentId = '2415051096';
@@ -12,7 +11,7 @@ void main() {
   runApp(
     ChangeNotifierProvider(
       create: (_) => CourseProvider(
-        CourseRepository(CourseService()),
+        CourseApiService('https://jsonplaceholder.typicode.com'),
       ),
       child: const MyApp(),
     ),
@@ -111,7 +110,7 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Text(
-                '$studentId - $studentName',
+                '$studentId • $studentName',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -236,7 +235,7 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '${course.code} - ${course.title}',
+                                  '${course.code} • ${course.title}',
                                   style: const TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,

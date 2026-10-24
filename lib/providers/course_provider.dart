@@ -67,4 +67,22 @@ class CourseProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  // HTTP PUT: Memperbarui Course yang Ada (Tahap 7)
+  Future<bool> updateCourse(int id, Course course) async {
+    _isSaving = true;
+    notifyListeners();
+
+    try {
+      await _apiService.updateCourse(id, course);
+      await loadCourses(); // Refresh daftar course setelah berhasil diubah
+      _isSaving = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _isSaving = false;
+      notifyListeners();
+      return false;
+    }
+  }
 }
