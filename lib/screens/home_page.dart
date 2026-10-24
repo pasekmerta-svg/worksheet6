@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/course_provider.dart';
+import '../widgets/error_view.dart';
 import 'course_detail_page.dart';
 import 'favorites_page.dart';
 
@@ -90,32 +91,30 @@ class _HomePageState extends State<HomePage> {
   Widget _buildCourseListSection() {
     final provider = context.watch<CourseProvider>();
 
+    // 1. Loading State
     if (provider.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
+    // 2. Error State (Menggunakan ErrorView Widget)
     if (provider.error != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, color: Colors.red, size: 48),
-            const SizedBox(height: 8),
-            Text(
-              'Terjadi Kesalahan:\n${provider.error}',
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.red),
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () => provider.loadCourses(),
-              child: const Text('Coba Lagi'),
-            ),
-          ],
+      return ErrorView(
+        message: provider.error!,
+        onRetry: provider.loadCourses,
+      );
+    }
+
+    // 3. Empty State
+    if (provider.courses.isEmpty) {
+      return const Center(
+        child: Text(
+          'Data course belum tersedia',
+          style: TextStyle(fontSize: 16, color: Colors.grey),
         ),
       );
     }
 
+    // 4. Success State (Daftar Data Course)
     return Column(
       children: [
         // Ringkasan Jumlah Course & Favorit
