@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import '../models/course.dart';
-import '../repositories/course_repository.dart';
+import '../services/course_api_service.dart';
 
 class CourseProvider extends ChangeNotifier {
-  final CourseRepository repository;
+  final CourseApiService _apiService;
 
-  CourseProvider(this.repository);
+  CourseProvider(this._apiService);
 
   List<Course> _courses = [];
   final Set<String> _favorites = {};
   bool _isLoading = false;
+  bool _isSaving = false;
   String? _error;
 
   List<Course> get courses => _courses;
   bool get isLoading => _isLoading;
+  bool get isSaving => _isSaving;
   String? get error => _error;
 
   int get favoriteCount => _favorites.length;
@@ -39,12 +41,30 @@ class CourseProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _courses = await repository.getCourses();
+      _courses = await _apiService.getCourses();
     } catch (e) {
       _error = e.toString();
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  // HTTP POST: Menambahkan Course Baru
+  Future<bool> addCourse(Course course) async {
+    _isSaving = true;
+    notifyListeners();
+
+    try {
+      await _apiService.createCourse(course);
+      await loadCourses(); // Refresh daftar course setelah berhasil
+      _isSaving = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _isSaving = false;
+      notifyListeners();
+      return false;
     }
   }
 }
