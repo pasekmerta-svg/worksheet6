@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'providers/course_provider.dart';
 import 'repositories/course_repository.dart';
@@ -8,7 +9,15 @@ import 'services/course_api_service.dart';
 const String studentName = 'Made Pasek Merta Sujati';
 const String studentId = '2415051096';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inisialisasi Supabase Client (Tahap 10)
+  await Supabase.initialize(
+    url: 'https://xyzcompany.supabase.co', // Ganti dengan Supabase URL kamu
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...', // Ganti dengan Anon Key kamu
+  );
+
   final repository = CourseRepository(
     CourseApiService('https://jsonplaceholder.typicode.com'),
   );
