@@ -35,6 +35,7 @@ class CourseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // HTTP GET: Memuat daftar course
   Future<void> loadCourses() async {
     _isLoading = true;
     _error = null;
@@ -81,6 +82,30 @@ class CourseProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       _isSaving = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // HTTP DELETE: Menghapus Course (Tahap 8)
+  Future<bool> deleteCourse(int id, String code) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      await _apiService.deleteCourse(id);
+      
+      // Hapus dari favorites jika ada agar tidak tersisa data yatim
+      _favorites.remove(code);
+      
+      // Refresh daftar course setelah berhasil dihapus
+      await loadCourses();
+      
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _isLoading = false;
       notifyListeners();
       return false;
     }

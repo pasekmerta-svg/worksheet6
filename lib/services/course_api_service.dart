@@ -47,4 +47,15 @@ class CourseApiService {
       throw Exception('Gagal memperbarui course');
     }
   }
+
+  // DELETE: Menghapus course dari API (Tahap 8)
+  Future<void> deleteCourse(int id) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/posts/$id'),
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception('Gagal menghapus course');
+    }
+  }
 }
