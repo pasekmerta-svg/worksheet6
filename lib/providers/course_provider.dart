@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../models/course.dart';
-import '../services/course_api_service.dart';
+import '../repositories/course_repository.dart'; // Pastikan import repository ini ada
 
 class CourseProvider extends ChangeNotifier {
-  final CourseApiService _apiService;
+  final CourseRepository repository; // Ganti dari CourseApiService menjadi CourseRepository
 
-  CourseProvider(this._apiService);
+  CourseProvider(this.repository);   // Ganti konstruktor menerima CourseRepository
 
   List<Course> _courses = [];
   final Set<String> _favorites = {};
@@ -35,14 +35,14 @@ class CourseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // HTTP GET: Memuat daftar course
+  // HTTP GET: Memuat daftar course lewat repository
   Future<void> loadCourses() async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      _courses = await _apiService.getCourses();
+      _courses = await repository.getCourses();
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -51,14 +51,14 @@ class CourseProvider extends ChangeNotifier {
     }
   }
 
-  // HTTP POST: Menambahkan Course Baru
+  // HTTP POST: Menambahkan Course Baru lewat repository
   Future<bool> addCourse(Course course) async {
     _isSaving = true;
     notifyListeners();
 
     try {
-      await _apiService.createCourse(course);
-      await loadCourses(); // Refresh daftar course setelah berhasil
+      await repository.createCourse(course);
+      await loadCourses();
       _isSaving = false;
       notifyListeners();
       return true;
@@ -69,14 +69,14 @@ class CourseProvider extends ChangeNotifier {
     }
   }
 
-  // HTTP PUT: Memperbarui Course yang Ada (Tahap 7)
+  // HTTP PUT: Memperbarui Course lewat repository
   Future<bool> updateCourse(int id, Course course) async {
     _isSaving = true;
     notifyListeners();
 
     try {
-      await _apiService.updateCourse(id, course);
-      await loadCourses(); // Refresh daftar course setelah berhasil diubah
+      await repository.updateCourse(id, course);
+      await loadCourses();
       _isSaving = false;
       notifyListeners();
       return true;
@@ -87,20 +87,15 @@ class CourseProvider extends ChangeNotifier {
     }
   }
 
-  // HTTP DELETE: Menghapus Course (Tahap 8)
+  // HTTP DELETE: Menghapus Course lewat repository
   Future<bool> deleteCourse(int id, String code) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      await _apiService.deleteCourse(id);
-      
-      // Hapus dari favorites jika ada agar tidak tersisa data yatim
+      await repository.deleteCourse(id);
       _favorites.remove(code);
-      
-      // Refresh daftar course setelah berhasil dihapus
       await loadCourses();
-      
       _isLoading = false;
       notifyListeners();
       return true;

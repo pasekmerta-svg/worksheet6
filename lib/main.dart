@@ -79,7 +79,6 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
   @override
   void initState() {
     super.initState();
-    // Memuat data course saat halaman dibuka pertama kali
     Future.microtask(
       () => context.read<CourseProvider>().loadCourses(),
     );
@@ -182,7 +181,7 @@ class _CourseExplorerPageState extends State<CourseExplorerPage> {
             ),
             const SizedBox(height: 12),
 
-            // Penanganan 3 Async State pada UI
+            // Penanganan Async State pada UI
             Expanded(
               child: Builder(
                 builder: (context) {
