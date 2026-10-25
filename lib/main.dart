@@ -14,8 +14,8 @@ void main() async {
 
   // Inisialisasi Supabase Client
   await Supabase.initialize(
-    url: 'https://dyvhpzduoiwiatepyyyz.supabase.co', // Project URL Supabase milikmu
-    anonKey: 'YOUR_SUPABASE_ANON_KEY', // Ganti dengan anon key Supabase milikmu
+    url: 'https://dyvhpzduoiwiatepyyyz.supabase.co',
+    anonKey: 'sb_publishable_WAsdCdgMoaUB9vp9Yi7c1A_cOyRg5xu',
   );
 
   // Menggunakan CourseSupabaseService untuk koneksi ke database Supabase
