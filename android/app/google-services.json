@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "86166385491",
+    "project_id": "kosfinder-pasek",
+    "storage_bucket": "kosfinder-pasek.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:86166385491:android:e4116f32b8985b4ab367a6",
+        "android_client_info": {
+          "package_name": "com.example.worksheet_6"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSAY_GI9Lp8UJ1ZufvPqMzMZ8uRMp1WiY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
