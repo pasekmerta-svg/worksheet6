@@ -32,8 +32,8 @@ class NotificationService {
   Future<String?> getToken() async {
     try {
       final token = await _messaging.getToken(
-        // Jika dijalankan di Chrome/Web, isi vapidKey dari Firebase Console > Cloud Messaging > Web Push certificates:
-        // vapidKey: 'TEMPEL_VAPID_KEY_ANDA_DI_SINI',
+        vapidKey:
+            'BAoIcvgZHcYuTqUNJHweqqofPiGWXnM-UzlnulVv39Qnm2u8defyRbDLsUyOgvUR089OwwaLaNP3YL-UOlxcBgc',
       );
       debugPrint('FCM Token: $token');
       return token;
